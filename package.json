@@ -1,0 +1,27 @@
+{
+  "name": "gps-viewer",
+  "version": "1.0.0",
+  "description": "Web app for viewing GPX files",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon -L src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaakaappi/gps-viewer.git"
+  },
+  "author": "Esa Niemi enum@hotmail.fi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jaakaappi/gps-viewer/issues"
+  },
+  "homepage": "https://github.com/jaakaappi/gps-viewer#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "gps": "^0.5.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
