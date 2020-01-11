@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
-const port = 3000
+const PORT = process.env.PORT || 3000
 
 app.use(express.static('public'));
 
-app.listen(port, () => console.log(`GPS viewer is running`));
+app.listen(PORT, () => console.log(`GPS viewer listening on ${PORT}`));
