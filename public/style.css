@@ -1,0 +1,10 @@
+body {
+    margin: 0;
+}
+#loader{
+    display: flex;
+}
+#spinner {
+    display: none;
+    height: 32px;
+}
