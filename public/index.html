@@ -5,10 +5,14 @@
     </title>
     <link rel="stylesheet" type="text/css" href="style.css" />
     <script src="js/gps.min.js" type="text/javascript"></script>
-    <script src="js/leaflet.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="leaflet.css" />
+    <script src="js/proj4.js"></script>
+    <script src="js/leaflet.js"></script>
+    <script src="js/mmlLayers.js"></script>
+    <script src="js/proj4leaflet.js"></script>
   </head>
   <body>
-    <div id="map"></div>
+    <div id="map" class="map"></div>
     <div id="loader">
       <input id="gps-file" type="file" />
       <button id="open-button">Open</button>
@@ -21,7 +25,10 @@
       </p>
       <p>
         Map from <a href="https://www.maanmittauslaitos.fi/en">NLS.fi</a> using
-        <a href="https://github.com/Leaflet/Leaflet">Leaflet.js</a>
+        <a href="https://leafletjs.com/">Leaflet.js</a> and
+        <a href="https://github.com/jleh/Leaflet.MML-layers"
+          >Leaflet MML layers</a
+        >
       </p>
     </footer>
     <script src="js/index.js" type="text/javascript"></script>
