@@ -4,8 +4,9 @@
   "description": "Web app for viewing GPX files",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon -L index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "watch": "watchify main.js -o public/js/bundle.js -v",
+    "start": "npm run watch & nodemon index.js -L",
+    "dev": "concurrently \"npm run watch\" \"nodemon index.js -L\""
   },
   "repository": {
     "type": "git",
@@ -18,9 +19,15 @@
   },
   "homepage": "https://github.com/jaakaappi/gps-viewer#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "browserify": "^16.5.0",
+    "express": "^4.17.1",
+    "gps": "^0.5.3",
+    "leaflet": "^1.6.0",
+    "proj4": "^2.6.0",
+    "proj4leaflet": "^1.0.2",
+    "watchify": "^3.11.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.2"
+    "concurrently": "^5.1.0"
   }
 }
