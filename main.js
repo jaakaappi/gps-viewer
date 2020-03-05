@@ -1,8 +1,8 @@
-require('leaflet');
-require('proj4');
-require('proj4leaflet');
-require('./mmlLayers');
-const GPS = require('gps');
+require("leaflet");
+require("proj4");
+require("proj4leaflet");
+require("./mmlLayers");
+const GPS = require("gps");
 
 var gps = new GPS();
 
