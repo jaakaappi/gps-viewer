@@ -13,8 +13,6 @@ async function sendGPSData() {
 
     document.getElementById("gps-file").disabled = true;
     document.getElementById("open-button").disabled = true;
-
-    document.getElementById("spinner").style.display = "block";
     const gpsFile = document.getElementById("gps-file").files[0];
     const gpsData = await gpsFile.text();
 
@@ -58,10 +56,8 @@ async function sendGPSData() {
         });
         return fixed_messages;
       });
-      console.log(messages.length);
 
       messages.flat(Infinity).forEach(value => {
-        console.log(value);
         try {
           gps.update(value);
         } catch (e) {
@@ -88,7 +84,6 @@ async function sendGPSData() {
 
     map.fitBounds(polyline.getBounds());
 
-    document.getElementById("spinner").style.display = "none";
     console.log("Loading complete");
   }
 }
