@@ -71,18 +71,35 @@ async function sendGPSData() {
             gps.update(value);
           }
         } catch (e) {
-          console.warn(e);
+          //console.warn(e);
         }
       });
     }
 
-    var polyline = L.polyline(path, {
-      color: "#2f7d5a",
-      weight: 4,
-      dashArray: "10,10"
-    }).addTo(map);
+    // sort paths by time
+    path.sort((a, b) => {
+      if (a.time < b.time) return -1;
+      if (a.time > b.time) return 1;
+      return 0;
+    });
+
+    var polyline = L.polyline(
+      path.map(point => {
+        return [point.lat, point.lon];
+      }),
+      {
+        color: "#2f7d5a",
+        weight: 4,
+        dashArray: "10,10"
+      }
+    ).addTo(map);
 
     map.fitBounds(polyline.getBounds());
+
+    const pathList = document.querySelector("#path-list");
+    let pathListNode = document.createElement("li");
+    pathListNode.innerHTML = path[0].time;
+    pathList.appendChild(pathListNode);
 
     console.log("Loading complete");
   }
@@ -97,9 +114,22 @@ var map = new L.map("map", {
 L.tileLayer.mml_wmts({ layer: "maastokartta" }).addTo(map);
 
 gps.on("data", function(parsed) {
-  console.log(parsed);
-  if (["GGA", "RMC", "GLL"].includes(parsed.type)) {
-    console.log(parsed.lat, parsed.lon);
-    path.push([parsed.lat, parsed.lon]);
+  if (
+    ["GGA", "RMC", "GLL"].includes(parsed.type) &&
+    parsed.lat != null &&
+    parsed.lon != null &&
+    parsed.lat !== 0 &&
+    parsed.lon !== 0 &&
+    parsed.time !== null
+  ) {
+    path.push({ time: parsed.time, lat: parsed.lat, lon: parsed.lon });
   }
 });
+
+document
+  .querySelector(".custom-file-input")
+  .addEventListener("change", function(e) {
+    var fileName = document.getElementById("gps-file").files[0].name;
+    var nextSibling = e.target.nextElementSibling;
+    nextSibling.innerText = fileName;
+  });
