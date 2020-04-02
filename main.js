@@ -61,7 +61,7 @@ async function sendGPSData() {
         try {
           gps.update(value);
         } catch (e) {
-          console.warn(e);
+          //console.warn(e);
         }
       });
     } else {
@@ -76,30 +76,53 @@ async function sendGPSData() {
       });
     }
 
-    // sort paths by time
-    path.sort((a, b) => {
-      if (a.time < b.time) return -1;
-      if (a.time > b.time) return 1;
-      return 0;
-    });
+    let newPath = path.reduce((acc, curr) => {
+      if (
+        curr.lon > -16.1 &&
+        curr.lon < 32.88 &&
+        curr.lat > 40.18 &&
+        curr.lat < 84.17
+      ) {
+        return acc.concat([[curr.lat, curr.lon]]);
+      } else return acc;
+    }, []);
 
-    var polyline = L.polyline(
-      path.map(point => {
-        return [point.lat, point.lon];
-      }),
-      {
-        color: "#2f7d5a",
-        weight: 4,
-        dashArray: "10,10"
-      }
-    ).addTo(map);
+    console.log(newPath);
+
+    var polyline = L.polyline(newPath, {
+      color: "black",
+      weight: 7.5
+    }).addTo(map);
+
+    // sort paths by time
+    const pathTimes = path.reduce(
+      (minmax, current) => {
+        if (current.time < minmax[0]) minmax[0] = current.time;
+        if (current.time > minmax[1]) minmax[1] = current.time;
+        return minmax;
+      },
+      [Infinity, 0]
+    );
+
+    const pointObjects = newPath.map(point => {
+      return { lat: point[0], lon: point[1] };
+    });
+    console.log(pointObjects);
+    const distance = GPS.TotalDistance(pointObjects);
+    console.log(distance, pointObjects.length);
+
+    const pathInfo = $("#path-info");
+    pathInfo.html(
+      `${pathTimes[0].toUTCString()} - ${pathTimes[1].toUTCString()}`
+    );
+
+    const infoRow = $("#info-row");
+    infoRow.removeClass("d-none");
+
+    const pathDistance = $("#path-distance");
+    pathDistance.html(`${distance} kilometers`);
 
     map.fitBounds(polyline.getBounds());
-
-    const pathList = document.querySelector("#path-list");
-    let pathListNode = document.createElement("li");
-    pathListNode.innerHTML = path[0].time;
-    pathList.appendChild(pathListNode);
 
     console.log("Loading complete");
   }
@@ -111,7 +134,7 @@ var map = new L.map("map", {
   crs: L.TileLayer.MML.get3067Proj()
 }).setView([61, 25], 4);
 
-L.tileLayer.mml_wmts({ layer: "maastokartta" }).addTo(map);
+L.tileLayer.mml_wmts({ layer: "maastokartta", opacity: 0.8 }).addTo(map);
 
 gps.on("data", function(parsed) {
   if (
