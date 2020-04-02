@@ -4,10 +4,11 @@ require("proj4leaflet");
 require("./mmlLayers");
 const GPS = require("gps");
 
-var gps = new GPS();
-var path = [];
+let gps = new GPS();
+let path = [];
+let polyline = null;
 
-async function sendGPSData() {
+const sendGPSData = async () => {
   if (document.getElementById("gps-file").files.length > 0) {
     console.log("Loading gps file");
 
@@ -89,7 +90,7 @@ async function sendGPSData() {
 
     console.log(newPath);
 
-    var polyline = L.polyline(newPath, {
+    polyline = L.polyline(newPath, {
       color: "black",
       weight: 7.5
     }).addTo(map);
@@ -107,9 +108,8 @@ async function sendGPSData() {
     const pointObjects = newPath.map(point => {
       return { lat: point[0], lon: point[1] };
     });
-    console.log(pointObjects);
+
     const distance = GPS.TotalDistance(pointObjects);
-    console.log(distance, pointObjects.length);
 
     const pathInfo = $("#path-info");
     pathInfo.html(
@@ -126,9 +126,26 @@ async function sendGPSData() {
 
     console.log("Loading complete");
   }
-}
+};
+
+const clearData = () => {
+  path = [];
+  document.getElementById("gps-file").disabled = false;
+  document.getElementById("open-button").disabled = false;
+
+  const pathInfo = $("#path-info");
+  pathInfo.html("");
+  const pathDistance = $("#path-distance");
+  pathDistance.html("");
+  const infoRow = $("#info-row");
+  infoRow.addClass("d-none");
+
+  map.removeLayer(polyline);
+  map.setView([61, 25], 4);
+};
 
 document.getElementById("open-button").addEventListener("click", sendGPSData);
+$("#delete-button").on("click", clearData);
 
 var map = new L.map("map", {
   crs: L.TileLayer.MML.get3067Proj()
