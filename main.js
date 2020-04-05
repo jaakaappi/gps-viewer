@@ -6,11 +6,16 @@ const GPS = require("gps");
 
 let gps = new GPS();
 let path = [];
-let polyline = null;
+let map,
+  polyline = null;
 
 const sendGPSData = async () => {
-  if (document.getElementById("gps-file").files.length > 0) {
+  let fileInput = $("#gps-file")[0];
+  if (fileInput.files.length > 0) {
     console.log("Loading gps file");
+
+    // let localStorage = Window.localStorage;
+    localStorage.setItem("filename", fileInput.files[0].name);
 
     document.getElementById("gps-file").disabled = true;
     document.getElementById("open-button").disabled = true;
@@ -19,14 +24,14 @@ const sendGPSData = async () => {
 
     if (document.getElementById("fix-checkbox").checked) {
       let rows = gpsData.split("\n");
-      let messages = rows.map(row => {
+      let messages = rows.map((row) => {
         let row_messages = row.split("$");
         row_messages = row_messages.filter(
-          message => message !== "" && message !== " "
+          (message) => message !== "" && message !== " "
         );
         let fixed_messages = [];
         let residual_message = "";
-        row_messages.forEach(element => {
+        row_messages.forEach((element) => {
           const prefix = element.substring(0, 2);
           let message = element;
           if (prefix === "GP" || prefix === "GN") {
@@ -58,7 +63,7 @@ const sendGPSData = async () => {
         return fixed_messages;
       });
 
-      messages.flat(Infinity).forEach(value => {
+      messages.flat(Infinity).forEach((value) => {
         try {
           gps.update(value);
         } catch (e) {
@@ -66,7 +71,7 @@ const sendGPSData = async () => {
         }
       });
     } else {
-      gpsData.split("\n").map(value => {
+      gpsData.split("\n").map((value) => {
         try {
           if (value.length > 0) {
             gps.update(value);
@@ -88,11 +93,9 @@ const sendGPSData = async () => {
       } else return acc;
     }, []);
 
-    console.log(newPath);
-
     polyline = L.polyline(newPath, {
       color: "black",
-      weight: 7.5
+      weight: 7.5,
     }).addTo(map);
 
     // sort paths by time
@@ -105,7 +108,7 @@ const sendGPSData = async () => {
       [Infinity, 0]
     );
 
-    const pointObjects = newPath.map(point => {
+    const pointObjects = newPath.map((point) => {
       return { lat: point[0], lon: point[1] };
     });
 
@@ -144,32 +147,40 @@ const clearData = () => {
   map.setView([61, 25], 4);
 };
 
-document.getElementById("open-button").addEventListener("click", sendGPSData);
-$("#delete-button").on("click", clearData);
-
-var map = new L.map("map", {
-  crs: L.TileLayer.MML.get3067Proj()
-}).setView([61, 25], 4);
-
-L.tileLayer.mml_wmts({ layer: "maastokartta", opacity: 0.8 }).addTo(map);
-
-gps.on("data", function(parsed) {
-  if (
-    ["GGA", "RMC", "GLL"].includes(parsed.type) &&
-    parsed.lat != null &&
-    parsed.lon != null &&
-    parsed.lat !== 0 &&
-    parsed.lon !== 0 &&
-    parsed.time !== null
-  ) {
-    path.push({ time: parsed.time, lat: parsed.lat, lon: parsed.lon });
+$(document).ready(() => {
+  if ($("#gps-file")[0].files.length > 0) {
+    let filename = localStorage.getItem("filename");
+    if (filename === null) filename = "Choose a file";
+    $("#file-label").html(filename);
   }
-});
 
-document
-  .querySelector(".custom-file-input")
-  .addEventListener("change", function(e) {
-    var fileName = document.getElementById("gps-file").files[0].name;
-    var nextSibling = e.target.nextElementSibling;
-    nextSibling.innerText = fileName;
+  document.getElementById("open-button").addEventListener("click", sendGPSData);
+  $("#delete-button").on("click", clearData);
+
+  map = new L.map("map", {
+    crs: L.TileLayer.MML.get3067Proj(),
+  }).setView([61, 25], 4);
+
+  L.tileLayer.mml_wmts({ layer: "maastokartta", opacity: 0.8 }).addTo(map);
+
+  gps.on("data", function (parsed) {
+    if (
+      ["GGA", "RMC", "GLL"].includes(parsed.type) &&
+      parsed.lat != null &&
+      parsed.lon != null &&
+      parsed.lat !== 0 &&
+      parsed.lon !== 0 &&
+      parsed.time !== null
+    ) {
+      path.push({ time: parsed.time, lat: parsed.lat, lon: parsed.lon });
+    }
   });
+
+  document
+    .querySelector(".custom-file-input")
+    .addEventListener("change", function (e) {
+      var fileName = document.getElementById("gps-file").files[0].name;
+      var nextSibling = e.target.nextElementSibling;
+      nextSibling.innerText = fileName;
+    });
+});
